@@ -10,7 +10,7 @@ function BookCard({ book }) {
       {book.cover_i && (
         <img src={`https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`} alt="Bokomslag" />
       )}
-      <a href={`https://www.amazon.com/s?k=${book.amazon_id}`} target="_blank" rel="noopener noreferrer">Søk på Amazon</a>
+      <a href={`https://www.amazon.com/s?k=${book.title}`} target="_blank" rel="noopener noreferrer">Søk på Amazon</a>
     </div>
   );
 }
