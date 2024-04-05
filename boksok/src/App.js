@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.scss';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
-  const searchBooks = async () => {
+  const searchBooks = async (query) => {
     try {
-      const response = await fetch(`https://openlibrary.org/search.json?q=james+bond&title=${searchTerm}`);
+      const response = await fetch(`https://openlibrary.org/search.json?q=${query}`);
       if (!response.ok) {
         throw new Error('Noe gikk galt ved henting av data.');
       }
@@ -21,7 +21,7 @@ function App() {
   const handleSearch = async () => {
     try {
       if (searchTerm.length >= 3) {
-        await searchBooks();
+        await searchBooks(searchTerm);
       } else {
         setSearchResults([]);
       }
@@ -33,6 +33,11 @@ function App() {
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
   };
+
+  useEffect(() => {
+    // Utfør et søk etter "James Bond"-bøker når komponenten mountes
+    searchBooks('james bond');
+  }, []); // Tomt avhengighetsarray for å bare utføre dette en gang ved mount
 
   return (
     <div className="App">
@@ -49,22 +54,18 @@ function App() {
       <main>
         <div className="book-list">
           {searchResults.length > 0 ? (
-            searchResults
-              // Fjern duplikatbøker ved å filtrere unike titler
-              .filter((book, index, self) =>
-                index === self.findIndex((b) => (
-                  b.title === book.title
-                ))
-              )
-              .map(book => (
-                <div key={book.key} className="book">
-                  <h2>{book.title}</h2>
-                  <p>Forfatter: {book.author_name}</p>
-                  <p>Første år publisert: {book.first_publish_year}</p>
-                  <p>Gjennomsnittlig rating: {book.average_rating}</p>
-                  <a href={`https://www.amazon.com/s?k=${book.amazon_id}`} target="_blank" rel="noopener noreferrer">Søk på Amazon</a>
-                </div>
-              ))
+            searchResults.map(book => (
+              <div key={book.key} className="book">
+                <h2>{book.title}</h2>
+                <p>Forfatter: {book.author_name}</p>
+                <p>Første år publisert: {book.first_publish_year}</p>
+                <p>Gjennomsnittlig rating: {book.average_rating}</p>
+                {book.cover_i && (
+                  <img src={`https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`} alt="Bokomslag" />
+                )}
+                <a href={`https://www.amazon.com/s?k=${book.amazon_id}`} target="_blank" rel="noopener noreferrer">Søk på Amazon</a>
+              </div>
+            ))
           ) : (
             <p>Ingen søkeresultater funnet</p>
           )}
